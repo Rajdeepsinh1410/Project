@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Food Donation Dashboard - Enhanced Design</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            --secondary-gradient: linear-gradient(135deg, #FF6B6B 0%, #FF0000 100%);
+            --success-gradient: linear-gradient(135deg, #36D1DC 0%, #5B86E5 100%);
+            --background: #0F172A;
+            --card-bg: #1E293B;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+            --hover-color: #2563EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+
+        .delivery-map {
+            height: 300px;
+            background: rgba(107, 115, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .driver-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .driver-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: var(--primary-gradient);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .driver-info {
+            flex-grow: 1;
+        }
+
+        .driver-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .driver-status {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-active {
+            background: rgba(52, 211, 153, 0.1);
+            color: #34D399;
+        }
+
+        .status-active::before {
+            background: #34D399;
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+
+        .status-inactive::before {
+            background: #EF4444;
+        }
+
+        /* History filters */
+        .history-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+
+        /* Analytics enhancements */
+        .stat-comparison {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .stat-comparison i {
+            margin-right: 5px;
+        }
+
+        .trend-up {
+            color: #34D399;
+        }
+
+        .trend-down {
+            color: #EF4444;
+        }
+
+        /* Settings enhancements */
+        .notification-preview {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-slider {
+            background: var(--primary-gradient);
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            /* Added fixed height to maintain navbar size */
+            height: 80px;
+        }
+
+        .logo-container img {
+            height: 100px;
+            /* Changed from 80px to 40px */
+            width: auto;
+            /* Added to ensure vertical centering */
+            margin: 20;
+        }
+
+        /* Rest of the styles remain unchanged */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .logo-container {
+                order: -1;
+            }
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        .nav-btn.active {
+            background: var(--hover-color);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-btn i {
+            margin-right: 8px;
+        }
+
+        /* Enhanced Section Styling */
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease-out;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--hover-color);
+            border-radius: 2px;
+        }
+
+        /* Enhanced Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .card-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Enhanced Table Styling */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        /* Enhanced Button Styling */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced Chart Styling */
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* Enhanced Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--hover-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Custom Checkbox Styling */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            -webkit-appearance: none;
+            background: var(--card-bg);
+            border-radius: 25px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: 0.4s;
+            margin-right: 10px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            background: var(--text-secondary);
+            transform: scale(1.1);
+            transition: 0.4s;
+        }
+
+        .checkbox-wrapper input:checked[type="checkbox"] {
+            background: var(--hover-color);
+        }
+
+        .checkbox-wrapper input:checked[type="checkbox"]::before {
+            left: 25px;
+            background: var(--text-primary);
+        }
+
+        /* Status Badge Styling */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(37, 99, 235, 0.1);
+            color: #60A5FA;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34D399;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+                text-align: left;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .table-container {
+                margin: 15px -20px;
+                border-radius: 0;
+            }
+        }
+
+        /* Search and Actions Bar */
+        .search-actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 12px 12px 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--hover-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn i {
+            margin-right: 8px;
+        }
+
+        .action-btn:hover {
+            background: var(--hover-color);
+            border-color: transparent;
+        }
+
+        /* Notification Banner */
+        .notification-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            border-radius: 10px;
+            margin: 20px 0;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-content i {
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .notification-text {
+            color: white;
+        }
+
+        .close-notification {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .close-notification:hover {
+            opacity: 1;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-item i {
+            font-size: 2em;
+            color: var(--hover-color);
+            margin-right: 15px;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-actions-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-container {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .action-buttons {
+                width: 100%;
+            }
+
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+
+        /* Additional styles for the action buttons */
+        .action-buttons .btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .action-buttons .btn i {
+            margin-right: 4px;
+        }
+
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Replace the existing nav-buttons div with this new structure -->
+    <div class="nav-container">
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showSection('pending')">
+                <i class="fas fa-clock"></i> Pending
+            </button>
+            <button class="nav-btn" onclick="showSection('accepted')">
+                <i class="fas fa-check-circle"></i> Accepted
+            </button>
+            <button class="nav-btn" onclick="showSection('delivery')">
+                <i class="fas fa-truck"></i> Delivery
+            </button>
+            <button class="nav-btn" onclick="showSection('history')">
+                <i class="fas fa-history"></i> History
+            </button>
+            <!-- <button class="nav-btn" onclick="showSection('analytics')">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </button> -->
+            <button class="nav-btn" onclick="showSection('profile')">
+                <i class="fas fa-user"></i> Profile
+            </button>
+        </div>
+        <div class="logo-container">
+            <img src="/foodforall.pdf.png" alt="NGO Logo">
+        </div>
+    </div>
+
+    <!-- Global Search and Actions Bar -->
+    <div class="search-actions-bar">
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search donations, donors, or drivers..." class="search-input">
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn">
+                <i class="fas fa-filter"></i>
+                Filters
+            </button>
+            <button class="action-btn">
+                <i class="fas fa-download"></i>
+                Export
+            </button>
+        </div>
+    </div>
+
+
+
+    <!-- Quick Stats Banner -->
+    <div class="quick-stats">
+        <div class="stat-item">
+            <i class="fas fa-box"></i>
+            <div class="stat-info">
+                <span class="stat-value">1,234</span>
+                <span class="stat-label">Total Donations</span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-truck"></i>
+            <div class="stat-info">
+                <span class="stat-value">15</span>
+                <span class="stat-label">Active Deliveries</span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <div class="stat-info">
+                <span class="stat-value">45</span>
+                <span class="stat-label">Active Donors</span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-clock"></i>
+            <div class="stat-info">
+                <span class="stat-value">23</span>
+                <span class="stat-label">Pending Requests</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="pending" class="section">
+        <h2>Pending Requests</h2>
+        <div class="grid-container">
+            <div class="card">
+                <h3>New Requests</h3>
+                <p class="card-value" id="newRequestCount">0</p>
+                <div class="stat-comparison">
+                    <i class="fas fa-arrow-up trend-up"></i>
+                    <span>New requests</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Urgent Requests</h3>
+                <p class="card-value">0</p>
+                <div class="stat-comparison">
+                    <i class="fas fa-arrow-down trend-down"></i>
+                    <span>No urgent requests</span>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Donation ID</th>
+                        <th>Donor Email</th>
+                        <th>Donor Name</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Expiry Date of Food</th>
+                        <th>Pickup Location</th>
+                        <th>Contact Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingTableBody">
+                    <!-- Table rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- Accepted Donations Section -->
+    <div id="accepted" class="section">
+        <h2>Accepted Donations</h2>
+        <div class="grid-container">
+            <div class="card">
+                <h3>Today's Accepted</h3>
+                <p class="card-value" id="todayAcceptedCount">0</p>
+                <div class="stat-comparison">
+                    <i class="fas fa-arrow-up trend-up"></i>
+                    <span id="acceptedComparison">Loading...</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Ready for Pickup</h3>
+                <p class="card-value" id="readyForPickupCount">0</p>
+                <div class="stat-comparison">
+                    <i class="fas fa-arrow-up trend-up"></i>
+                    <span id="pickupComparison">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Donation ID</th>
+                        <th>Donor Email</th>
+                        <th>Donor Name</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Expiry Date of Food</th>
+                        <th>Pickup Location</th>
+                        <th>Contact Number</th>
+                        <th>Tpin</th>
+
+                    </tr>
+                </thead>
+                <tbody id="acceptedTableBody">
+                    <!-- Table rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Delivery Tracking Section -->
+    <div id="delivery" class="section">
+        <h2>Delivery Tracking</h2>
+        <div class="delivery-map">
+            <p>Interactive Map View</p>
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <h3>Active Deliveries</h3>
+                <p class="card-value">15</p>
+            </div>
+            <div class="card">
+                <h3>Available Drivers</h3>
+                <p class="card-value">7</p>
+            </div>
+        </div>
+        <div class="table-container">
+            <h3 style="margin-bottom: 15px;">Active Deliveries</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Pickup Location</th>
+                        <th>Delivery Location</th>
+                        <th>Status</th>
+                        <th>ETA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Smith</td>
+                        <td>Downtown Bakery</td>
+                        <td>Community Center</td>
+                        <td><span class="status-indicator status-active">In Transit</span></td>
+                        <td>15 mins</td>
+                    </tr>
+                    <tr>
+                        <td>Sarah Johnson</td>
+                        <td>Fresh Market</td>
+                        <td>Food Bank</td>
+                        <td><span class="status-indicator status-active">Picking Up</span></td>
+                        <td>25 mins</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Order History Section -->
+    <div id="history" class="section">
+        <h2>Order History</h2>
+        <div class="history-filters">
+            <button class="filter-btn active" onclick="filterHistory('all')">All Time</button>
+            <button class="filter-btn" onclick="filterHistory('month')">This Month</button>
+            <button class="filter-btn" onclick="filterHistory('week')">This Week</button>
+            <button class="filter-btn" onclick="filterHistory('today')">Today</button>
+        </div>
+        <div class="grid-container">
+            <div class="card">
+                <h3>Total Orders</h3>
+                <p class="card-value" id="totalOrdersCount">0</p>
+                <div class="stat-comparison">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="acceptedCount">0 Accepted</span>
+                </div>
+                <div class="stat-comparison">
+                    <i class="fas fa-times-circle"></i>
+                    <span id="declinedCount">0 Declined</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Total Impact</h3>
+                <p class="card-value" id="totalImpact">0</p>
+                <span class="text-sm text-gray-400">portions of food</span>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Donation ID</th>
+                        <th>Donor Email</th>
+                        <th>Donor Name</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Expiry Date of Food</th>
+                        <th>Pickup Location</th>
+                        <th>Contact Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- Table rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Profile Section (Replaces Settings Section) -->
+    <div id="profile" class="section">
+        <h2>Profile</h2>
+        <div class="grid-container">
+            <!-- Profile Information -->
+            <div class="card">
+                <h3>Profile Information</h3>
+                <div class="form-group">
+                    <label>Organization Name</label>
+                    <input type="text" class="form-control" value="Food Aid NGO">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" value="contact@foodaidngo.org">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" class="form-control" value="+1 (555) 123-4567">
+                </div>
+                <button class="btn">Update Profile</button>
+            </div>
+            <script>
+                // Enhanced Section Navigation with Smooth Transitions
+                function showSection(sectionId) {
+                    document.querySelectorAll('.nav-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+
+                    document.querySelectorAll('.section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+
+                    const targetSection = document.getElementById(sectionId);
+                    targetSection.classList.add('active');
+
+                    if (sectionId === 'analytics') {
+                        initializeCharts();
+                    }
+                }
+
+                // Enhanced Charts Initialization
+                function initializeCharts() {
+                    // Monthly Donations Chart with enhanced styling
+                    // Monthly Donations Chart with enhanced styling
+                    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+                    new Chart(monthlyCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Donations',
+                                data: [65, 59, 80, 81, 56, 55],
+                                borderColor: '#6B73FF',
+                                backgroundColor: 'rgba(107, 115, 255, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#6B73FF',
+                                pointBorderColor: '#fff',
+                                pointHoverRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#F8FAFC'
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: '#94A3B8'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: '#94A3B8'
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Food Categories Chart with enhanced styling
+                    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                    new Chart(categoryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Prepared Meals', 'Groceries', 'Produce', 'Bakery'],
+                            datasets: [{
+                                data: [30, 25, 25, 20],
+                                backgroundColor: [
+                                    '#6B73FF',
+                                    '#FF6B6B',
+                                    '#36D1DC',
+                                    '#FFD93D'
+                                ],
+                                borderWidth: 0,
+                                borderRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: '#F8FAFC',
+                                        padding: 20,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Add smooth scrolling to all sections
+                document.querySelectorAll('.nav-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+
+                // Add hover effects to table rows
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    row.addEventListener('mouseenter', () => {
+                        row.style.transform = 'scale(1.01)';
+                        row.style.transition = 'transform 0.2s ease';
+                    });
+                    row.addEventListener('mouseleave', () => {
+                        row.style.transform = 'scale(1)';
+                    });
+                });
+
+                // Add button click effects
+                document.querySelectorAll('.btn').forEach(button => {
+                    button.addEventListener('click', function (e) {
+                        let ripple = document.createElement('div');
+                        this.appendChild(ripple);
+
+                        let x = e.clientX - e.target.offsetLeft;
+                        let y = e.clientY - e.target.offsetTop;
+
+                        ripple.style.left = `${x}px`;
+                        ripple.style.top = `${y}px`;
+
+                        setTimeout(() => {
+                            ripple.remove();
+                        }, 600);
+                    });
+                });
+
+                // Initialize tooltips for better UX
+                document.querySelectorAll('[data-tooltip]').forEach(element => {
+                    element.addEventListener('mouseenter', e => {
+                        let tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = e.target.dataset.tooltip;
+                        document.body.appendChild(tooltip);
+
+                        let rect = e.target.getBoundingClientRect();
+                        tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                        tooltip.style.left = rect.left + (rect.width - tooltip.offsetWidth) / 2 + 'px';
+                    });
+
+                    element.addEventListener('mouseleave', () => {
+                        document.querySelector('.tooltip')?.remove();
+                    });
+                });
+
+                // Add loading animation
+                window.addEventListener('load', () => {
+                    document.body.classList.add('loaded');
+                });
+
+                // Show initial section
+                showSection('pending');
+
+                // Notification Banner
+                function closeNotification() {
+                    const banner = document.getElementById('notificationBanner');
+                    banner.style.animation = 'slideOut 0.5s ease-out forwards';
+                    setTimeout(() => {
+                        banner.style.display = 'none';
+                    }, 500);
+                }
+
+                // Search Functionality
+                document.querySelector('.search-input').addEventListener('input', function (e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    // Add search functionality here
+                    // This is a placeholder for demonstration
+                    console.log('Searching for:', searchTerm);
+                });
+
+                // Quick Stats Animation
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.addEventListener('mouseenter', () => {
+                        item.style.transform = 'translateY(-5px)';
+                    });
+
+                    item.addEventListener('mouseleave', () => {
+                        item.style.transform = 'translateY(0)';
+                    });
+                });
+
+                // Initialize Tooltips
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            </script>
+            <script type="module">
+                // Import Firebase modules
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+                import { getDatabase, ref, onValue, remove, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+                // Your Firebase configuration
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDKE4TJ2OtvbuKNeWMPS8nByM_h35AJ1XM",
+                    authDomain: "foodforall-97e9a.firebaseapp.com",
+                    databaseURL: "https://foodforall-97e9a-default-rtdb.firebaseio.com",
+                    projectId: "foodforall-97e9a",
+                    storageBucket: "foodforall-97e9a.firebasestorage.app",
+                    messagingSenderId: "279857484046",
+                    appId: "1:279857484046:web:da83c2bf200ee067ce075f",
+                    measurementId: "G-PPCSWNBN23"
+                };
+
+                // Initialize Firebase
+                const app = initializeApp(firebaseConfig);
+                const db = getDatabase(app);
+
+                // Reference to the fooddata directory
+                const foodDataRef = ref(db, 'FoodData');
+
+                // Listen for changes in the fooddata directory
+                onValue(foodDataRef, (snapshot) => {
+                    const data = snapshot.val();
+                    updateTable(data);
+                    updateRequestCount(data);
+                });
+
+                function updateTable(data) {
+                    const tableBody = document.getElementById('pendingTableBody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+
+                    if (!data) return;
+
+                    Object.entries(data).forEach(([key, FoodData]) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+            <td>#${key.slice(0, 5)}</td>
+            <td>${FoodData.Email || 'N/A'}</td>
+              <td>${FoodData.Name || 'N/A'}</td>
+            <td>${FoodData.Foodtype || 'N/A'}</td>
+            <td>${FoodData.Type || 'N/A'}</td>
+            <td>${FoodData.Details || 'N/A'} portions</td>
+            <td>${FoodData.Date || 'N/A'}</td>
+            <td>${FoodData.Address || 'N/A'}</td>
+            <td>${FoodData.Contact || 'N/A'}</td>
+            <td class="action-buttons" style="display: flex; gap: 8px;">
+                <button class="btn" style="background: linear-gradient(135deg, #34D399 0%, #059669 100%);" 
+                        onclick="handleAcceptDonation('${key}')">
+                    <i class="fas fa-check"></i> Accept
+                </button>
+                <button class="btn" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);"
+                        onclick="handleDeclineDonation('${key}')">
+                    <i class="fas fa-times"></i> Decline
+                </button>
+            </td>
+        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+
+                function updateRequestCount(data) {
+                    const count = data ? Object.keys(data).length : 0;
+                    document.getElementById('newRequestCount').textContent = count;
+                }
+
+                // Function to generate a random 6-digit TPIN for NGO
+                function generateTPIN() {
+                    return Math.floor(100000 + Math.random() * 900000).toString();
+                }
+
+                // Function to generate a random 6-digit TPIN for Donor
+                function generateDonorTpin() {
+                    return Math.floor(100000 + Math.random() * 900000).toString();
+                }
+
+                window.handleAcceptDonation = async function (donationId) {
+                    const confirmed = confirm("Are you sure you want to accept this donation?");
+                    if (confirmed) {
+                        try {
+                            const donationRef = ref(db, `FoodData/${donationId}`);
+                            const snapshot = await get(donationRef);
+
+                            if (snapshot.exists()) {
+                                const donationData = snapshot.val();
+
+                                // Generate separate TPINs
+                                const tpin = generateTPIN(); // For NGO
+                                const donorTpin = generateDonorTpin(); // For Donor
+
+                                // Store them in the database
+                                donationData.acceptedAt = new Date().toISOString();
+                                donationData.status = 'accepted';
+                                donationData.tpin = tpin;  // NGO TPIN
+                                donationData.donorTpin = donorTpin; // Donor TPIN
+
+                                const acceptedRef = ref(db, `ngoAcceptedDonation/${donationId}`);
+                                await set(acceptedRef, donationData);
+                                await remove(donationRef);
+
+                                alert(`Donation accepted successfully!\nNGO TPIN: ${tpin}\nDonor TPIN: ${donorTpin}`);
+                            }
+                        } catch (error) {
+                            console.error("Error accepting donation:", error);
+                            alert("Error accepting donation. Please try again.");
+                        }
+                    }
+                };
+                window.handleDeclineDonation = async function (donationId) {
+                    const confirmed = confirm("Are you sure you want to decline this donation?");
+                    if (confirmed) {
+                        try {
+                            // Get the donation data first
+                            const donationRef = ref(db, `FoodData/${donationId}`);
+                            const snapshot = await get(donationRef);
+
+                            if (snapshot.exists()) {
+                                const donationData = snapshot.val();
+
+                                // Add decline timestamp and status
+                                donationData.declinedAt = new Date().toISOString();
+                                donationData.status = 'declined';
+
+                                // Move to ngoDeclinedDonation directory
+                                const declinedRef = ref(db, `ngoDeclinedDonation/${donationId}`);
+                                await set(declinedRef, donationData);
+
+                                // Remove from original location
+                                await remove(donationRef);
+
+                                alert("Donation declined successfully!");
+                            }
+                        } catch (error) {
+                            console.error("Error declining donation:", error);
+                            alert("Error declining donation. Please try again.");
+                        }
+                    }
+                };
+
+
+
+                // Reference to the ngoAcceptedDonation directory
+                const acceptedDonationsRef = ref(db, 'ngoAcceptedDonation');
+
+                // Listen for changes in the ngoAcceptedDonation directory
+                onValue(acceptedDonationsRef, (snapshot) => {
+                    try {
+                        const data = snapshot.val();
+                        console.log('Received data:', data); // Debug log
+
+                        if (!data) {
+                            console.log('No data received from database');
+                            document.getElementById('acceptedTableBody').innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center">No accepted donations found</td>
+                </tr>`;
+                            return;
+                        }
+
+                        updateAcceptedTable(data);
+                        updateAcceptedStats(data);
+                    } catch (error) {
+                        console.error('Error in onValue callback:', error);
+                    }
+                }, (error) => {
+                    console.error('Database error:', error);
+                });
+
+                function updateAcceptedTable(data) {
+                    try {
+                        const tableBody = document.getElementById('acceptedTableBody');
+                        if (!tableBody) {
+                            console.error('Table body element not found');
+                            return;
+                        }
+
+                        tableBody.innerHTML = ''; // Clear existing rows
+
+                        const entries = Object.entries(data);
+                        console.log(`Processing ${entries.length} donations`); // Debug log
+
+                        if (entries.length === 0) {
+                            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center">No accepted donations found</td>
+                </tr>`;
+                            return;
+                        }
+
+                        entries.forEach(([key, ngoAcceptedDonation]) => {
+                            console.log('Processing donation:', key, ngoAcceptedDonation); // Debug log
+
+                            const row = document.createElement('tr');
+                            const now = new Date();
+                            const pickupTime = ngoAcceptedDonation.time || 'N/A';
+                            const pickupDate = new Date(ngoAcceptedDonation.time);
+                            const status = pickupDate < now ? 'Overdue' : 'Ready';
+
+                            row.innerHTML = `
+                <td>#${key.slice(0, 5)}</td>
+              <td>${ngoAcceptedDonation.Email || 'N/A'}</td>
+              <td>${ngoAcceptedDonation.Name || 'N/A'}</td>
+            <td>${ngoAcceptedDonation.Foodtype || 'N/A'}</td>
+            <td>${ngoAcceptedDonation.Type || 'N/A'}</td>
+            <td>${ngoAcceptedDonation.Details || 'N/A'} portions</td>
+            <td>${ngoAcceptedDonation.Date || 'N/A'}</td>
+            <td>${ngoAcceptedDonation.Address || 'N/A'}</td>
+            <td>${ngoAcceptedDonation.Contact || 'N/A'}</td>
+                <td><strong>TPIN: ${ngoAcceptedDonation.tpin || 'N/A'}</strong></td>
+            `;
+                            tableBody.appendChild(row);
+                        });
+                    } catch (error) {
+                        console.error('Error in updateAcceptedTable:', error);
+                    }
+                }
+
+                // Add this verification function to check database connection
+                function verifyDatabaseConnection() {
+                    const testRef = ref(db, '.info/connected');
+                    onValue(testRef, (snapshot) => {
+                        const connected = snapshot.val();
+                        console.log('Database connection status:', connected);
+                    });
+                }
+
+                // Call this when the page loads
+                verifyDatabaseConnection();
+
+                function updateAcceptedStats(data) {
+                    if (!data) {
+                        data = {};
+                    }
+
+                    // Count today's accepted donations
+                    const today = new Date().toDateString();
+                    const todayAccepted = Object.values(data).filter(donation => {
+                        const donationDate = new Date(donation.acceptedAt).toDateString();
+                        return donationDate === today;
+                    }).length;
+
+                    // Count donations ready for pickup
+                    const readyForPickup = Object.values(data).filter(donation => {
+                        const pickupTime = new Date(donation.time);
+                        const now = new Date();
+                        return pickupTime > now;
+                    }).length;
+
+                    // Update the UI
+                    document.getElementById('todayAcceptedCount').textContent = todayAccepted;
+                    document.getElementById('readyForPickupCount').textContent = readyForPickup;
+
+                    // Update comparisons
+                    document.getElementById('acceptedComparison').textContent =
+                        `${todayAccepted > 0 ? '+' : ''}${todayAccepted} from yesterday`;
+                    document.getElementById('pickupComparison').textContent =
+                        `${readyForPickup} awaiting pickup`;
+                }
+
+                // References to the donation directories
+                const acceptedHistoryRef = ref(db, 'ngoAcceptedDonation');
+                const declinedHistoryRef = ref(db, 'ngoDeclinedDonation');
+
+                // Store the combined data globally
+                let combinedHistoryData = {
+                    accepted: {},
+                    declined: {}
+                };
+
+                // Current filter
+                let currentFilter = 'all';
+
+                // Listen for changes in accepted donations
+                onValue(acceptedHistoryRef, (snapshot) => {
+                    combinedHistoryData.accepted = snapshot.val() || {};
+                    updateHistoryView();
+                });
+
+                // Listen for changes in declined donations
+                onValue(declinedHistoryRef, (snapshot) => {
+                    combinedHistoryData.declined = snapshot.val() || {};
+                    updateHistoryView();
+                });
+
+                // Filter function
+                window.filterHistory = function (timeFrame) {
+                    // Update active button
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelector(`.filter-btn[onclick*="${timeFrame}"]`).classList.add('active');
+
+                    currentFilter = timeFrame;
+                    updateHistoryView();
+                };
+
+                function isWithinTimeFrame(date, timeFrame) {
+                    const now = new Date();
+                    const donationDate = new Date(date);
+
+                    switch (timeFrame) {
+                        case 'today':
+                            return donationDate.toDateString() === now.toDateString();
+                        case 'week':
+                            const weekAgo = new Date(now.setDate(now.getDate() - 7));
+                            return donationDate >= weekAgo;
+                        case 'month':
+                            const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+                            return donationDate >= monthAgo;
+                        default: // 'all'
+                            return true;
+                    }
+                }
+                function updateHistoryView() {
+                    try {
+                        const tableBody = document.getElementById('historyTableBody');
+                        if (!tableBody) {
+                            console.error('History table body not found');
+                            return;
+                        }
+
+                        tableBody.innerHTML = ''; // Clear existing rows
+
+                        // Combine and sort all donations
+                        let allDonations = [];
+
+                        console.log('Accepted data:', combinedHistoryData.accepted); // Debug log
+                        console.log('Declined data:', combinedHistoryData.declined); // Debug log
+
+                        // Process accepted donations
+                        Object.entries(combinedHistoryData.accepted).forEach(([key, donation]) => {
+                            if (donation) {
+                                allDonations.push({
+                                    ...donation,
+                                    id: key,
+                                    status: 'Accepted',
+                                    date: donation.Date || donation.time // Using the correct field name
+                                });
+                            }
+                        });
+
+                        // Process declined donations
+                        Object.entries(combinedHistoryData.declined).forEach(([key, donation]) => {
+                            if (donation) {
+                                allDonations.push({
+                                    ...donation,
+                                    id: key,
+                                    status: 'Declined',
+                                    date: donation.Date || donation.time // Using the correct field name
+                                });
+                            }
+                        });
+
+                        // Filter based on timeframe
+                        allDonations = allDonations.filter(donation => isWithinTimeFrame(donation.date, currentFilter));
+
+                        // Sort by date (most recent first)
+                        allDonations.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                        // Update statistics
+                        updateHistoryStats(allDonations);
+
+                        if (allDonations.length === 0) {
+                            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center">No donations found for the selected time period</td>
+                </tr>`;
+                            return;
+                        }
+
+                        // Populate table
+                        allDonations.forEach(donation => {
+                            try {
+                                const row = document.createElement('tr');
+                                // Format date if it exists, otherwise show N/A
+                                const donationDate = donation.Date ?
+                                    new Date(donation.Date).toLocaleDateString() : 'N/A';
+
+                                row.innerHTML = `
+                    <td>#${donation.id.slice(0, 5)}</td>
+    <td>${donation.Email || 'N/A'}</td>
+    <td>${donation.Name || 'N/A'}</td>
+    <td>${donation.Type || 'N/A'}</td>
+    <td>${donation.Foodtype || 'N/A'}</td>
+    <td>${donation.Details || 'N/A'} portions</td>
+    <td>${donationDate}</td>
+    <td>${donation.Address || 'N/A'}</td>
+    <td>${donation.Contact || 'N/A'}</td>
+    <td><span class="status-indicator ${donation.status === 'Accepted' ? 'status-active' : 'status-inactive'}">${donation.status}</span></td>
+                `;
+
+                                tableBody.appendChild(row);
+                            } catch (error) {
+                                console.error('Error processing donation row:', error, donation);
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error in updateHistoryView:', error);
+                        console.log('Current combined data:', combinedHistoryData);
+                    }
+                }
+
+                // Update the statistics function to match the new data structure
+                function updateHistoryStats(filteredDonations) {
+                    try {
+                        // Update total orders count
+                        const totalOrders = filteredDonations.length;
+                        const totalOrdersElement = document.getElementById('totalOrdersCount');
+                        if (totalOrdersElement) {
+                            totalOrdersElement.textContent = totalOrders;
+                        }
+
+                        // Update accepted/declined counts
+                        const acceptedOrders = filteredDonations.filter(d => d.status === 'Accepted').length;
+                        const declinedOrders = filteredDonations.filter(d => d.status === 'Declined').length;
+
+                        const acceptedElement = document.getElementById('acceptedCount');
+                        const declinedElement = document.getElementById('declinedCount');
+
+                        if (acceptedElement) {
+                            acceptedElement.textContent = `${acceptedOrders} Accepted`;
+                        }
+                        if (declinedElement) {
+                            declinedElement.textContent = `${declinedOrders} Declined`;
+                        }
+
+                        // Calculate total impact (sum of portions from Details field)
+                        const totalImpact = filteredDonations.reduce((sum, donation) => {
+                            // Try to extract numeric value from Details field
+                            const detailsStr = donation.Details || '0';
+                            const quantity = parseInt(detailsStr) || 0;
+                            return sum + quantity;
+                        }, 0);
+
+                        const impactElement = document.getElementById('totalImpact');
+                        if (impactElement) {
+                            impactElement.textContent = totalImpact;
+                        }
+                    } catch (error) {
+                        console.error('Error in updateHistoryStats:', error);
+                    }
+                }
+
+                // Add this debugging function
+                function debugDatabaseConnection() {
+                    console.log('Checking database connection...');
+
+                    onValue(acceptedHistoryRef, (snapshot) => {
+                        console.log('Accepted donations data:', snapshot.val());
+                    }, (error) => {
+                        console.error('Error reading accepted donations:', error);
+                    });
+
+                    onValue(declinedHistoryRef, (snapshot) => {
+                        console.log('Declined donations data:', snapshot.val());
+                    }, (error) => {
+                        console.error('Error reading declined donations:', error);
+                    });
+                }
+
+                // Call this function when the page loads
+                debugDatabaseConnection();
+                // Initialize with 'all' filter
+                filterHistory('all');
+            </script>
+</body>
+
+</html>
